@@ -40,7 +40,7 @@ resource "aws_lambda_function" "lambda" {
 ###               IAM                ###
 ########################################
 resource "aws_iam_role" "iam_for_lambda" {
-  name = "lambda-${var.project}-${var.env}"
+  name = "lambda-${var.project}-${var.env}${var.suffix}"
 
   assume_role_policy = <<EOF
 {
