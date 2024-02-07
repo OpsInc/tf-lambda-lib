@@ -2,7 +2,7 @@
 ###              Locals              ###
 ########################################
 locals {
-  lambdas = merge(var.apps, var.lambdas)
+  lambdas = merge(var.apps, var.microservices)
 }
 
 ########################################
@@ -34,6 +34,13 @@ resource "aws_lambda_function" "lambda" {
   }
 
   tags = var.common_tags
+}
+
+resource "aws_lambda_event_source_mapping" "invoke" {
+  for_each = var.sqs_enabled == true ? local.lambdas : {}
+
+  event_source_arn = "arn:aws:sqs:${var.aws_conf.region}:${var.aws_conf.account_id}:${var.project}-${each.value.name}-${var.env}"
+  function_name    = "${var.project}-${each.value.name}-${var.env}"
 }
 
 ########################################
