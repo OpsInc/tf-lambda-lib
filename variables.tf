@@ -21,7 +21,12 @@ variable "lambdas" {
   default     = {}
 }
 
-variable "project_identifier" {
-  description = "The project name with environment"
+variable "project" {
+  description = "The project name"
+  type        = string
+}
+
+variable "suffix" {
+  description = "Add uniq suffix, can also include the environment name"
   type        = string
 }
