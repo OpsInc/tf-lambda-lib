@@ -27,6 +27,12 @@ variable "project" {
 }
 
 variable "suffix" {
-  description = "Add uniq suffix, can also include the environment name"
+  description = "Add unique suffix"
+  type        = string
+  default     = ""
+}
+
+variable "env" {
+  description = "The project environment name"
   type        = string
 }

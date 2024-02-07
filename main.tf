@@ -11,7 +11,7 @@ locals {
 #tfsec:ignore:aws-lambda-enable-tracing
 resource "aws_lambda_function" "lambda" {
   for_each      = local.lambdas
-  function_name = "${var.project}-${each.value.name}-${var.suffix}"
+  function_name = "${var.project}-${each.value.name}-${var.env}"
   role          = aws_iam_role.iam_for_lambda.arn
 
   runtime = "provided"
@@ -22,7 +22,7 @@ resource "aws_lambda_function" "lambda" {
 
   environment {
     variables = {
-      DATABASE_NAME = "${var.project}-${var.suffix}"
+      DATABASE_NAME = "${var.project}-${var.env}"
     }
   }
 
@@ -40,7 +40,7 @@ resource "aws_lambda_function" "lambda" {
 ###               IAM                ###
 ########################################
 resource "aws_iam_role" "iam_for_lambda" {
-  name = "lambda-${var.project}-${var.suffix}"
+  name = "lambda-${var.project}-${var.env}"
 
   assume_role_policy = <<EOF
 {
@@ -87,7 +87,7 @@ resource "aws_iam_role_policy_attachment" "AmazonLambdaInvoke" {
 
 #tfsec:ignore:aws-iam-no-policy-wildcards
 resource "aws_iam_policy" "lambda_invoke" {
-  name        = "lambda-invoke-${var.project}-${var.suffix}"
+  name        = "lambda-invoke-${var.project}-${var.env}${var.suffix}"
   description = "IAM policy to allow Lambda invoke other Lambdas"
 
   policy = jsonencode(
@@ -111,7 +111,7 @@ resource "aws_iam_policy" "lambda_invoke" {
 resource "aws_iam_policy" "lambda_kms" {
   count = var.dynamodb_kms_key_arn != "" ? 1 : 0
 
-  name        = "lambda-kms-${var.project}-${var.suffix}"
+  name        = "lambda-kms-${var.project}-${var.env}${var.suffix}"
   description = "IAM policy to allow Lambda to Encrypt/Decrypt KMS"
 
   policy = jsonencode(
