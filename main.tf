@@ -85,6 +85,12 @@ resource "aws_iam_role_policy_attachment" "AmazonLambdaInvoke" {
   role       = aws_iam_role.iam_for_lambda.name
 }
 
+# Allows Lambda read receive invoke events and access the queue from SQS
+resource "aws_iam_role_policy_attachment" "AWSLambdaSQSQueueExecutionRole" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
+  role       = aws_iam_role.iam_for_lambda.name
+}
+
 #tfsec:ignore:aws-iam-no-policy-wildcards
 resource "aws_iam_policy" "lambda_invoke" {
   name        = "lambda-invoke-${var.project}-${var.env}${var.suffix}"
