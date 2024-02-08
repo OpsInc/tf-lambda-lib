@@ -86,15 +86,37 @@ resource "aws_iam_role_policy_attachment" "AmazonS3ReadOnlyAccess" {
   role       = aws_iam_role.iam_for_lambda.name
 }
 
-# Allows Lambda read access to S3 buckets
-resource "aws_iam_role_policy_attachment" "AmazonLambdaInvoke" {
-  policy_arn = aws_iam_policy.lambda_invoke.arn
-  role       = aws_iam_role.iam_for_lambda.name
-}
-
 # Allows Lambda read receive invoke events and access the queue from SQS
 resource "aws_iam_role_policy_attachment" "AWSLambdaSQSQueueExecutionRole" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
+  role       = aws_iam_role.iam_for_lambda.name
+}
+
+#tfsec:ignore:aws-iam-no-policy-wildcards
+resource "aws_iam_policy" "put_events" {
+  name        = "put-events-${var.project}-${var.env}${var.suffix}"
+  description = "IAM policy to allow Eventbridge PutEvents"
+
+  policy = jsonencode(
+    {
+      Version = "2012-10-17",
+      Statement = [
+        {
+          Sid      = "VisualEditor0",
+          Effect   = "Allow",
+          Action   = "events:PutEvents",
+          Resource = "*"
+        }
+      ]
+    }
+  )
+
+  tags = var.common_tags
+}
+
+# Allows Lambda to invoke other Lambdas
+resource "aws_iam_role_policy_attachment" "AmazonPutEvents" {
+  policy_arn = aws_iam_policy.put_events.arn
   role       = aws_iam_role.iam_for_lambda.name
 }
 
@@ -118,6 +140,12 @@ resource "aws_iam_policy" "lambda_invoke" {
   )
 
   tags = var.common_tags
+}
+
+# Allows Lambda to invoke other Lambdas
+resource "aws_iam_role_policy_attachment" "AmazonLambdaInvoke" {
+  policy_arn = aws_iam_policy.lambda_invoke.arn
+  role       = aws_iam_role.iam_for_lambda.name
 }
 
 #tfsec:ignore:aws-iam-no-policy-wildcards
